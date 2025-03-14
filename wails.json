@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "react-viz",
+  "outputfilename": "react-viz",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm run build",
+  "frontend:dev:watcher": "pnpm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "syahril",
+    "email": "callmesyahril@gmail.com"
+  },
+  "info": {
+    "companyName": "syahril.dev",
+    "productName": "React Project Visualizer",
+    "productVersion": "0.1.0",
+    "copyright": "Copyright © 2025",
+    "comments": "Visualize React project component structure"
+  }
+}

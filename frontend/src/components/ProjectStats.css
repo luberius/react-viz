@@ -1,0 +1,75 @@
+.project-stats {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.project-stats h2 {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 1.2rem;
+}
+
+.stats-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-item {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.stat-item h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.stat-value {
+  display: flex;
+  gap: 4px;
+}
+
+.stat-item.warning .stat-value {
+  color: #e74c3c;
+}
+
+.legend {
+  display: flex;
+  border-top: 1px solid #e0e0e0;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 0.5rem;
+}
+
+.legend-color.component {
+  background-color: #4a90e2;
+}
+
+.legend-color.state {
+  background-color: #e67e22;
+}
+
+.legend-color.util {
+  background-color: #2ecc71;
+}
+
+.legend-warning {
+  margin-right: 0.5rem;
+}

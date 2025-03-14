@@ -1,0 +1,44 @@
+.graph-view-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.graph-link {
+  stroke: #95a5a6;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.6;
+}
+
+.graph-node {
+  cursor: pointer;
+}
+
+.node-label {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.warning-icon {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.node-details {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+}
+
+.node-details h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+

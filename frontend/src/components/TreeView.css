@@ -1,0 +1,185 @@
+
+.tree-view-container {
+  padding: 1rem;
+  overflow: auto;
+}
+
+.tree-root {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.tree-children {
+  list-style-type: none;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.tree-node {
+  margin-bottom: 0.5rem;
+}
+
+.node-content {
+  display: flex;
+  align-items: left;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  gap: 6px;
+}
+
+.node-content:hover {
+  background-color: #f0f3f7;
+}
+
+.expand-icon {
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+  width: 1rem;
+  text-align: center;
+}
+
+.node-type {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-left: 0.5rem;
+}
+
+.warning-icon {
+  margin-left: 0.5rem;
+  color: #e74c3c;
+}
+
+.multiple-components {
+  position: relative;
+}
+
+
+.virtual-row {
+  width: 100%;
+}
+
+.tree-node {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.node-content {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  cursor: pointer;
+  height: 28px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-content:hover {
+  background-color: #e9ecef;
+}
+
+.node-content svg {
+  width: 14px;
+  height: 14px;
+}
+
+.expand-icon {
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  margin-right: 5px;
+  font-size: 10px;
+}
+
+.node-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-type {
+  font-size: 11px;
+  color: #6c757d;
+  margin-left: 6px;
+}
+
+.warning-icon {
+  margin-left: 5px;
+}
+
+.node-type-component .node-content {
+  border-left: 3px solid #4a90e2;
+}
+
+.node-type-state .node-content {
+  border-left: 3px solid #e67e22;
+}
+
+.node-type-util .node-content {
+  border-left: 3px solid #2ecc71;
+}
+
+.node-type-folder .node-content {
+  border-left: 3px solid #95a5a6;
+}
+
+.multiple-components .node-content {
+  border-left: 3px solid #e74c3c;
+}
+
+.node-type-folder {
+  font-weight: bold;
+}
+
+.count-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  margin-left: 5px;
+  color: white;
+}
+
+.imports-badge {
+  background-color: #2c3e50;
+}
+
+.imported-by-badge {
+  background-color: #8e44ad;
+}
+
+.importance-badge {
+  display: inline-block;
+  font-size: 11px;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  border-radius: 50%;
+  margin-left: 5px;
+  background-color: #FF5733;
+  color: white;
+  font-weight: bold;
+}
+
+.folder-count {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  margin-left: 5px;
+  background-color: #6c757d;
+  color: white;
+}
+
+.high-importance {
+  border-left: 3px solid #FF5733 !important;
+}
+
+.loading-message, .empty-message {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+}
