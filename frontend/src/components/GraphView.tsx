@@ -3,6 +3,8 @@ import ELK from "elkjs/lib/elk.bundled.js";
 import * as d3 from "d3";
 import { GraphViewProps, D3Node } from "../types/project";
 import "./GraphView.css";
+import { useSnapshot } from "valtio";
+import { globalStore } from "@/stores/global";
 
 // Define ELK node and edge types
 interface ElkNode {
@@ -38,6 +40,8 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [selectedNode, setSelectedNode] = useState<D3Node | null>(null);
 
+  const snap = useSnapshot(globalStore);
+
   useEffect(() => {
     if (!data || !svgRef.current) return;
 
@@ -66,29 +70,85 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
 
     const g = svg.append("g");
 
-    // Prepare data for ELK
-    const nodes: D3Node[] = Object.values(data.nodesMap);
+    // Get nodes from data
+    let nodes: D3Node[] = Object.values(data.nodesMap);
+    let elkNodes: ElkNode[] = [];
+    let elkEdges: ElkEdge[] = [];
 
-    // Create ELK graph structure
-    const elkNodes: ElkNode[] = nodes.map((node) => ({
-      id: node.id,
-      width: 120, // Fixed width for node
-      height: 50, // Fixed height for node
-      data: node,
-    }));
+    // Filter nodes and edges based on selectedFile
+    if (snap.selectedFile) {
+      const selectedFileNode = data.nodesMap[snap.selectedFile];
 
-    const elkEdges: ElkEdge[] = [];
-    nodes.forEach((node) => {
-      node.imports?.forEach((importPath, index) => {
-        if (data.nodesMap[importPath]) {
-          elkEdges.push({
-            id: `${node.id}_to_${importPath}_${index}`,
-            sources: [node.id],
-            targets: [importPath],
+      if (selectedFileNode) {
+        // Create a set to track all relevant nodes
+        const relevantNodeIds = new Set<string>();
+        relevantNodeIds.add(selectedFileNode.id);
+
+        // Add imported nodes
+        if (selectedFileNode.imports) {
+          selectedFileNode.imports.forEach((importPath) => {
+            if (data.nodesMap[importPath]) {
+              relevantNodeIds.add(importPath);
+            }
           });
         }
+
+        // Add nodes that import the selected file
+        if (selectedFileNode.importedBy) {
+          selectedFileNode.importedBy.forEach((importerPath) => {
+            if (data.nodesMap[importerPath]) {
+              relevantNodeIds.add(importerPath);
+            }
+          });
+        }
+
+        // Filter nodes to only include relevant ones
+        nodes = nodes.filter((node) => relevantNodeIds.has(node.id));
+
+        // Create ELK nodes
+        elkNodes = nodes.map((node) => ({
+          id: node.id,
+          width: 120, // Fixed width for node
+          height: 50, // Fixed height for node
+          data: node,
+        }));
+
+        // Create ELK edges for the filtered set
+        nodes.forEach((node) => {
+          // Only add edges between nodes in our filtered set
+          node.imports?.forEach((importPath, index) => {
+            if (relevantNodeIds.has(importPath)) {
+              elkEdges.push({
+                id: `${node.id}_to_${importPath}_${index}`,
+                sources: [node.id],
+                targets: [importPath],
+              });
+            }
+          });
+        });
+      }
+    } else {
+      // If no file is selected, show all nodes
+      elkNodes = nodes.map((node) => ({
+        id: node.id,
+        width: 120, // Fixed width for node
+        height: 50, // Fixed height for node
+        data: node,
+      }));
+
+      // Create edges for all nodes
+      nodes.forEach((node) => {
+        node.imports?.forEach((importPath, index) => {
+          if (data.nodesMap[importPath]) {
+            elkEdges.push({
+              id: `${node.id}_to_${importPath}_${index}`,
+              sources: [node.id],
+              targets: [importPath],
+            });
+          }
+        });
       });
-    });
+    }
 
     const elkGraph: ElkGraph = {
       id: "root",
@@ -113,6 +173,11 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       .then((layoutedGraph) => {
         // Define node color based on type
         const nodeColor = (d: D3Node) => {
+          // Highlight the selected file
+          if (d.id === snap.selectedFile) {
+            return "#e74c3c"; // Highlight color for selected file
+          }
+
           switch (d.type) {
             case "component":
               return "#4a90e2";
@@ -150,13 +215,31 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
             return "";
           })
           .attr("fill", "none")
-          .attr("stroke", "#999")
-          .attr("stroke-width", 1.5)
-          .attr("marker-end", "url(#arrowhead)");
+          .attr("stroke", (edge) => {
+            // Highlight edges connected to selected file
+            const isFromSelected = edge.sources.includes(snap.selectedFile);
+            const isToSelected = edge.targets.includes(snap.selectedFile);
+            return isFromSelected || isToSelected ? "#e74c3c" : "#999";
+          })
+          .attr("stroke-width", (edge) => {
+            // Make edges connected to selected file thicker
+            const isFromSelected = edge.sources.includes(snap.selectedFile);
+            const isToSelected = edge.targets.includes(snap.selectedFile);
+            return isFromSelected || isToSelected ? 2.5 : 1.5;
+          })
+          .attr("marker-end", (edge) => {
+            const isFromSelected = edge.sources.includes(snap.selectedFile);
+            const isToSelected = edge.targets.includes(snap.selectedFile);
+            return isFromSelected || isToSelected
+              ? "url(#selectedArrowhead)"
+              : "url(#arrowhead)";
+          });
 
-        // Define arrow marker for directed edges
-        svg
-          .append("defs")
+        // Define arrow markers for directed edges
+        const defs = svg.append("defs");
+
+        // Regular arrow
+        defs
           .append("marker")
           .attr("id", "arrowhead")
           .attr("viewBox", "0 -5 10 10")
@@ -168,6 +251,20 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
           .append("path")
           .attr("d", "M0,-5L10,0L0,5")
           .attr("fill", "#999");
+
+        // Highlighted arrow for selected file
+        defs
+          .append("marker")
+          .attr("id", "selectedArrowhead")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 20)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", "#e74c3c");
 
         // Create nodes
         const nodeGroups = g
@@ -192,8 +289,18 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
           .attr("rx", 5)
           .attr("ry", 5)
           .attr("fill", (d) => (d.data ? nodeColor(d.data) : "#ccc"))
-          .attr("stroke", (d) => (d.data?.multipleComp ? "#e74c3c" : "white"))
-          .attr("stroke-width", (d) => (d.data?.multipleComp ? 3 : 1));
+          .attr("stroke", (d) => {
+            if (d.data?.id === snap.selectedFile) {
+              return "#fff"; // White border for selected file
+            }
+            return d.data?.multipleComp ? "#e74c3c" : "white";
+          })
+          .attr("stroke-width", (d) => {
+            if (d.data?.id === snap.selectedFile) {
+              return 3; // Thicker border for selected file
+            }
+            return d.data?.multipleComp ? 3 : 1;
+          });
 
         // Add warning icons for multiple components
         nodeGroups
@@ -222,7 +329,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         });
       })
       .catch(console.error);
-  }, [data]);
+  }, [data, snap.selectedFile]);
 
   return (
     <div className="graph-view-container">

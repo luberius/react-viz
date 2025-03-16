@@ -1,3 +1,4 @@
+import { globalStore } from "@/stores/global";
 import React, { useState, useEffect } from "react";
 import { TreeViewProps, D3Node } from "../types/project";
 import "./TreeView.css";
@@ -157,6 +158,19 @@ export const TreeView: React.FC<TreeViewProps> = ({ data }) => {
     return Math.round(score);
   };
 
+  const handleClickNode = (hasChildren: boolean, node: TreeNode) => {
+    if (node.id === "root") {
+      globalStore.selectedFile = "";
+      return;
+    }
+
+    if (hasChildren) toggleNode(node.id);
+
+    if (!hasChildren && node.type !== "folder") {
+      globalStore.selectedFile = node.id;
+    }
+  };
+
   // Recursive rendering of tree nodes
   const renderTreeNode = (node: TreeNode, depth: number = 0) => {
     const hasChildren = node.children && node.children.length > 0;
@@ -183,7 +197,7 @@ export const TreeView: React.FC<TreeViewProps> = ({ data }) => {
       <div key={node.id} className={nodeClassName}>
         <div
           className={`node-content ${importanceScore > 10 ? "high-importance" : ""}`}
-          onClick={() => hasChildren && toggleNode(node.id)}
+          onClick={() => handleClickNode(hasChildren, node)}
         >
           {hasChildren && node.type === "folder" && !isExpanded && (
             <svg
