@@ -1,7 +1,9 @@
-
+/* Tree structure */
 .tree-view-container {
-  padding: 1rem;
+  padding-left: 2px;
+  padding-top: 2px;
   overflow: auto;
+  width: 300px;
 }
 
 .tree-root {
@@ -11,52 +13,10 @@
 
 .tree-children {
   list-style-type: none;
-  padding-left: 1.5rem;
-  margin-top: 0.5rem;
-}
-
-.tree-node {
-  margin-bottom: 0.5rem;
-}
-
-.node-content {
-  display: flex;
-  align-items: left;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  gap: 6px;
-}
-
-.node-content:hover {
-  background-color: #f0f3f7;
-}
-
-.expand-icon {
-  margin-right: 0.5rem;
-  font-size: 0.8rem;
-  width: 1rem;
-  text-align: center;
-}
-
-.node-type {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  margin-left: 0.5rem;
-}
-
-.warning-icon {
-  margin-left: 0.5rem;
-  color: #e74c3c;
-}
-
-.multiple-components {
+  padding-left: 0.5rem;
   position: relative;
-}
-
-
-.virtual-row {
-  width: 100%;
+  margin-left: 12px;
+  border-left: 1px dashed #ccc;
 }
 
 .tree-node {
@@ -65,19 +25,37 @@
   padding: 0;
 }
 
+/* Node styling */
 .node-content {
   display: flex;
   align-items: center;
-  padding: 5px 8px;
+  padding: 5px 4px;
   cursor: pointer;
-  height: 28px;
+  transition: background-color 0.2s;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  gap: 6px;
+  position: relative;
 }
 
-.node-content:hover {
-  background-color: #e9ecef;
+.node-content::before {
+  content: "";
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background-color: #ccc;
+  display: none;
+}
+
+.tree-children > .tree-node > .node-content::before {
+  display: block;
+}
+
+.node-content:hover span {
+  text-decoration: underline;
 }
 
 .node-content svg {
@@ -85,6 +63,15 @@
   height: 14px;
 }
 
+.node-name {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Icons */
 .expand-icon {
   display: inline-block;
   width: 16px;
@@ -93,44 +80,15 @@
   font-size: 10px;
 }
 
-.node-name {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.node-type {
-  font-size: 11px;
-  color: #6c757d;
-  margin-left: 6px;
-}
-
 .warning-icon {
   margin-left: 5px;
 }
 
-.node-type-component .node-content {
-  border-left: 3px solid #4a90e2;
-}
-
-.node-type-state .node-content {
-  border-left: 3px solid #e67e22;
-}
-
-.node-type-util .node-content {
-  border-left: 3px solid #2ecc71;
-}
-
-.node-type-folder .node-content {
-  border-left: 3px solid #95a5a6;
-}
-
-.multiple-components .node-content {
-  border-left: 3px solid #e74c3c;
-}
-
-.node-type-folder {
-  font-weight: bold;
+/* Badges and indicators */
+.node-type {
+  font-size: 11px;
+  color: #6c757d;
+  margin-left: 6px;
 }
 
 .count-badge {
@@ -178,8 +136,29 @@
   border-left: 3px solid #FF5733 !important;
 }
 
-.loading-message, .empty-message {
+/* Improved focus and hover states */
+.node-content:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.node-content:focus-within {
+  background-color: rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+/* Status messages */
+.loading-message, 
+.empty-message {
   padding: 20px;
   text-align: center;
   color: #6c757d;
+}
+
+/* Virtual list */
+.multiple-components {
+  position: relative;
+}
+
+.virtual-row {
+  width: 100%;
 }

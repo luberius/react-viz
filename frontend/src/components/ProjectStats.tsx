@@ -1,3 +1,4 @@
+import JsIcon from "@/assets/icon/js";
 import ReactIcon from "@/assets/icon/react";
 import ReduxIcon from "@/assets/icon/redux";
 import { ProjectStatsProps } from "../types/project";
@@ -17,8 +18,11 @@ export const ProjectStats: React.FC<ProjectStatsProps> = ({ stats }) => {
           <ReduxIcon />
           {stats.stateFiles}
         </div>
-        <div className="stat-value">{stats.utilFiles}</div>
-        <div className="stat-value">{stats.multiCompFiles}</div>
+        <div className="stat-value">
+          <JsIcon />
+          {stats.utilFiles}
+        </div>
+        <div className="stat-value">⚠️{stats.multiCompFiles}</div>
       </div>
 
       <div className="legend">

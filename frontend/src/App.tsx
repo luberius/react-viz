@@ -60,22 +60,6 @@ const App = () => {
             {projectPath ? "Change Project" : "Select Project"}
           </button>
           {projectPath && <button onClick={handleRefresh}>Refresh</button>}
-          {projectData && (
-            <div className="view-toggle">
-              <button
-                className={activeView === "tree" ? "active" : ""}
-                onClick={() => setActiveView("tree")}
-              >
-                Tree View
-              </button>
-              <button
-                className={activeView === "graph" ? "active" : ""}
-                onClick={() => setActiveView("graph")}
-              >
-                Graph View
-              </button>
-            </div>
-          )}
         </div>
       </header>
 
@@ -104,13 +88,10 @@ const App = () => {
         {!loading && !error && projectData && (
           <div className="project-view">
             <div className="visualization">
-              {activeView === "tree" ? (
-                <TreeView data={projectData} />
-              ) : (
-                <ReactFlowProvider>
-                  <GraphView data={projectData} />
-                </ReactFlowProvider>
-              )}
+              <TreeView data={projectData} />
+              <ReactFlowProvider>
+                <GraphView data={projectData} />
+              </ReactFlowProvider>
             </div>
             <div className="stats">
               <ProjectStats
