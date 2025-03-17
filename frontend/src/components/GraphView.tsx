@@ -58,17 +58,25 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height]);
 
-    // Add zoom behavior
+    // Create a container group for all elements
+    const g = svg.append("g");
+
+    // Initialize zoom behavior
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.1, 4])
+      .scaleExtent([0.2, 3])
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
       });
 
+    // Apply zoom to the SVG
     svg.call(zoom);
 
-    const g = svg.append("g");
+    // Set initial zoom position
+    svg.call(
+      zoom.transform,
+      d3.zoomIdentity.translate(width / 6, height / 6).scale(0.8),
+    );
 
     // Get nodes from data
     let nodes: D3Node[] = Object.values(data.nodesMap);
@@ -108,8 +116,8 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         // Create ELK nodes
         elkNodes = nodes.map((node) => ({
           id: node.id,
-          width: 120, // Fixed width for node
-          height: 50, // Fixed height for node
+          width: 120,
+          height: 50,
           data: node,
         }));
 
@@ -131,8 +139,8 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
       // If no file is selected, show all nodes
       elkNodes = nodes.map((node) => ({
         id: node.id,
-        width: 120, // Fixed width for node
-        height: 50, // Fixed height for node
+        width: 120,
+        height: 50,
         data: node,
       }));
 
@@ -171,6 +179,53 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
     elk
       .layout(elkGraph, { layoutOptions: options })
       .then((layoutedGraph) => {
+        // Auto-center the view based on the graph size
+        // Calculate the bounding box of the graph
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -Infinity,
+          maxY = -Infinity;
+
+        (layoutedGraph.children || []).forEach((node) => {
+          const x = node.x || 0;
+          const y = node.y || 0;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + (node.width || 0));
+          maxY = Math.max(maxY, y + (node.height || 0));
+        });
+
+        // Only adjust view if we have nodes
+        if (layoutedGraph.children && layoutedGraph.children.length > 0) {
+          // Compute graph center and dimensions
+          const graphWidth = maxX - minX;
+          const graphHeight = maxY - minY;
+          const graphCenterX = minX + graphWidth / 2;
+          const graphCenterY = minY + graphHeight / 2;
+
+          // Compute appropriate scale
+          const scale = Math.min(
+            0.8, // Maximum scale
+            0.9 * Math.min(width / graphWidth, height / graphHeight),
+          );
+
+          // Apply transform with a slight delay to ensure smooth transition
+          setTimeout(() => {
+            svg
+              .transition()
+              .duration(750)
+              .call(
+                zoom.transform,
+                d3.zoomIdentity
+                  .translate(
+                    width / 2 - graphCenterX * scale,
+                    height / 2 - graphCenterY * scale,
+                  )
+                  .scale(scale),
+              );
+          }, 100);
+        }
+
         // Define node color based on type
         const nodeColor = (d: D3Node) => {
           // Highlight the selected file
@@ -189,6 +244,37 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               return "#95a5a6";
           }
         };
+
+        // Define arrow markers for directed edges
+        const defs = svg.append("defs");
+
+        // Regular arrow
+        defs
+          .append("marker")
+          .attr("id", "arrowhead")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 20)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", "#999");
+
+        // Highlighted arrow for selected file
+        defs
+          .append("marker")
+          .attr("id", "selectedArrowhead")
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 20)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5")
+          .attr("fill", "#e74c3c");
 
         // Create edges
         const links = g
@@ -234,37 +320,6 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               ? "url(#selectedArrowhead)"
               : "url(#arrowhead)";
           });
-
-        // Define arrow markers for directed edges
-        const defs = svg.append("defs");
-
-        // Regular arrow
-        defs
-          .append("marker")
-          .attr("id", "arrowhead")
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 20)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .append("path")
-          .attr("d", "M0,-5L10,0L0,5")
-          .attr("fill", "#999");
-
-        // Highlighted arrow for selected file
-        defs
-          .append("marker")
-          .attr("id", "selectedArrowhead")
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 20)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .append("path")
-          .attr("d", "M0,-5L10,0L0,5")
-          .attr("fill", "#e74c3c");
 
         // Create nodes
         const nodeGroups = g
