@@ -25,20 +25,124 @@
 }
 
 .node-details {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 1px;
   position: absolute;
   right: 1rem;
   top: 1rem;
   background-color: white;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-height: 90dvh;
+  overflow-y: auto;
   max-width: 300px;
 }
 
-.node-details h3 {
+.node-details h4  {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   margin-top: 0;
+  margin-bottom: 8px;
   border-bottom: 1px solid #e0e0e0;
   padding-bottom: 0.5rem;
+  width: 100%;
 }
 
+/* Info section styling */
+.info-section {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 4px;
+}
+
+.info-label {
+  text-align: start;
+  font-size: 10pt;
+}
+
+.info-value {
+  text-align: start;
+}
+
+.path {
+  font-size: 10px;
+  color: #489bcf;
+  word-break: break-all;
+}
+
+.type {
+  font-size: 10pt;
+  background: #ddd;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 9pt;
+}
+
+/* List sections styling - Blender-like */
+.list-section {
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  width: 100%;
+}
+
+.list-section:last-child {
+  border-bottom: none;
+}
+
+.list-header {
+  /*background-color: #353941;*/
+  padding: 2px 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: start;
+}
+
+.list-content {
+  /*background-color: #2a2d32;*/
+}
+
+.list-item {
+  padding: 2px 4px;
+  font-size: 11px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: start;
+}
+
+.list-item span {
+  text-align: start;
+  word-break: break-all;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-icon {
+  color: #659ad2;
+  font-size: 8px;
+  margin-right: 4px;
+  margin-top: 2pt;
+}
+
+.imports-badge {
+  background-color: #2c3e50;
+}
+
+.imported-by-badge {
+  background-color: #8e44ad;
+}

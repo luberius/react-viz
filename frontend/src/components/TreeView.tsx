@@ -1,5 +1,5 @@
 import { globalStore } from "@/stores/global";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TreeViewProps, D3Node } from "../types/project";
 import "./TreeView.css";
 
@@ -20,6 +20,40 @@ export const TreeView: React.FC<TreeViewProps> = ({ data }) => {
   );
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [width, setWidth] = useState<number>(300);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+
+      const newWidth = e.clientX;
+      // Add min and max constraints
+      if (newWidth >= 150 && newWidth <= 600) {
+        setWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   // Build the tree when data changes
   useEffect(() => {
@@ -309,16 +343,23 @@ export const TreeView: React.FC<TreeViewProps> = ({ data }) => {
   };
 
   return (
-    <div className="tree-view-container">
-      {isLoading ? (
-        <div className="loading-message">Building tree structure...</div>
-      ) : treeData.length > 0 ? (
-        <div className="tree-content">
-          {treeData.map((rootNode) => renderTreeNode(rootNode))}
-        </div>
-      ) : (
-        <div className="empty-message">No files found.</div>
-      )}
+    <div className="tree-view-wrapper" style={{ display: "flex" }}>
+      <div
+        ref={containerRef}
+        className="tree-view-container"
+        style={{ width: `${width}px` }}
+      >
+        {isLoading ? (
+          <div className="loading-message">Building tree structure...</div>
+        ) : treeData.length > 0 ? (
+          <div className="tree-content">
+            {treeData.map((rootNode) => renderTreeNode(rootNode))}
+          </div>
+        ) : (
+          <div className="empty-message">No files found.</div>
+        )}
+      </div>
+      <div className="resize-handle" onMouseDown={handleDragStart}></div>
     </div>
   );
 };

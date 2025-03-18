@@ -5,6 +5,9 @@ import { GraphViewProps, D3Node } from "../types/project";
 import "./GraphView.css";
 import { useSnapshot } from "valtio";
 import { globalStore } from "@/stores/global";
+import ReactIcon from "@/assets/icon/react";
+import ReduxIcon from "@/assets/icon/redux";
+import JsIcon from "@/assets/icon/js";
 
 // Define ELK node and edge types
 interface ElkNode {
@@ -392,40 +395,59 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
 
       {selectedNode && (
         <div className="node-details">
-          <h3>{selectedNode.name}</h3>
-          <p>
-            <strong>Type:</strong> {selectedNode.type}
-          </p>
-          <p>
-            <strong>Path:</strong> {selectedNode.path}
-          </p>
+          <h4>
+            {selectedNode.type === "component" && <ReactIcon />}
+            {selectedNode.type === "state" && <ReduxIcon />}
+            {selectedNode.type === "util" && <JsIcon />}
+            {selectedNode.name}
+          </h4>
+          <div className="info-section">
+            <div className="info-grid">
+              <span className="info-label">Type:</span>
+              <span className="info-value type">{selectedNode.type}</span>
+              <span className="info-label">Path:</span>
+              <span className="info-value path">{selectedNode.path}</span>
+            </div>
+          </div>
           {selectedNode.multipleComp && (
             <p className="warning">Multiple components defined in this file!</p>
           )}
 
           {selectedNode.imports?.length > 0 && (
-            <div>
-              <p>
-                <strong>Imports:</strong>
-              </p>
-              <ul>
+            <div className="list-section">
+              <div className="list-header">
+                <span>IMPORTS</span>
+                <span className="count-badge imports-badge">
+                  {selectedNode.imports?.length}
+                </span>
+              </div>
+              <div className="list-content">
                 {selectedNode.imports.map((imp, index) => (
-                  <li key={index}>{imp}</li>
+                  <div key={index} className="list-item">
+                    <span className="list-icon">▶</span>
+                    <span>{imp}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
           {selectedNode.importedBy?.length > 0 && (
-            <div>
-              <p>
-                <strong>Imported By:</strong>
-              </p>
-              <ul>
+            <div className="list-section">
+              <div className="list-header">
+                <span>IMPORTED BY</span>
+                <span className="count-badge imported-by-badge">
+                  {selectedNode.imports?.length}
+                </span>
+              </div>
+              <div className="list-content">
                 {selectedNode.importedBy.map((imp, index) => (
-                  <li key={index}>{imp}</li>
+                  <div key={index} className="list-item">
+                    <span className="list-icon">▶</span>
+                    <span>{imp}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </div>

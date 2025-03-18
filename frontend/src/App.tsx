@@ -11,7 +11,6 @@ const App = () => {
   const [projectData, setProjectData] = useState<Project | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<"tree" | "graph">("tree");
   const [projectPath, setProjectPath] = useState<string>("");
 
   const handleSelectDirectory = async (): Promise<void> => {
