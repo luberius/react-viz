@@ -346,12 +346,73 @@ func buildTreeRecursive(parent *ComponentNode, dir string, dirNodes map[string][
 	}
 }
 
+func ConvertToUnixPath(path string) string {
+	return strings.ReplaceAll(path, "\\", "/")
+}
+
+func ConvertProjectPathsToUnix(project *Project) {
+	// Convert root paths
+	project.Root.Path = ConvertToUnixPath(project.Root.Path)
+
+	// Convert all files paths
+	for i, filePath := range project.Files {
+		project.Files[i] = ConvertToUnixPath(filePath)
+	}
+
+	// Create a new map with converted keys and values
+	newNodesMap := make(map[string]ComponentNode)
+	for id, node := range project.NodesMap {
+		// Convert node paths
+		node.ID = ConvertToUnixPath(node.ID)
+		node.Path = ConvertToUnixPath(node.Path)
+
+		// Convert imports paths
+		for i, importPath := range node.Imports {
+			node.Imports[i] = ConvertToUnixPath(importPath)
+		}
+
+		// Convert importedBy paths
+		for i, importedBy := range node.ImportedBy {
+			node.ImportedBy[i] = ConvertToUnixPath(importedBy)
+		}
+
+		// Convert children paths recursively
+		convertChildrenPaths(&node)
+
+		// Add to new map with Unix path as key
+		newNodesMap[ConvertToUnixPath(id)] = node
+	}
+
+	// Replace the original map
+	project.NodesMap = newNodesMap
+}
+
+func convertChildrenPaths(node *ComponentNode) {
+	for i := range node.Children {
+		child := &node.Children[i]
+		child.ID = ConvertToUnixPath(child.ID)
+		child.Path = ConvertToUnixPath(child.Path)
+
+		for j, importPath := range child.Imports {
+			child.Imports[j] = ConvertToUnixPath(importPath)
+		}
+
+		for j, importedBy := range child.ImportedBy {
+			child.ImportedBy[j] = ConvertToUnixPath(importedBy)
+		}
+
+		convertChildrenPaths(child)
+	}
+}
+
 // GetProjectJSON returns project data as JSON and saves it to disk
 func GetProjectJSON(rootDir string) (string, error) {
 	project, err := ScanProject(rootDir)
 	if err != nil {
 		return "", err
 	}
+
+	ConvertProjectPathsToUnix(&project)
 
 	jsonData, err := json.MarshalIndent(project, "", "  ")
 	if err != nil {
