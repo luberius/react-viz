@@ -40,25 +40,54 @@ interface ElkGraph {
 }
 
 export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [selectedNode, setSelectedNode] = useState<D3Node | null>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const snap = useSnapshot(globalStore);
 
+  // Function to update dimensions based on container size
+  const updateDimensions = () => {
+    if (containerRef.current) {
+      const { width, height } = containerRef.current.getBoundingClientRect();
+      setDimensions({ width, height });
+    }
+  };
+
+  // Initial dimensions and resize listener
   useEffect(() => {
-    if (!data || !svgRef.current) return;
+    updateDimensions();
+
+    const handleResize = () => {
+      updateDimensions();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (
+      !data ||
+      !svgRef.current ||
+      dimensions.width === 0 ||
+      dimensions.height === 0
+    )
+      return;
 
     // Clear previous visualization
     d3.select(svgRef.current).selectAll("*").remove();
 
-    const width = 800;
-    const height = 600;
+    // Get container dimensions
+    const width = dimensions.width;
+    const height = dimensions.height;
 
     // Create SVG
     const svg = d3
       .select(svgRef.current)
-      .attr("width", width)
-      .attr("height", height)
+      .attr("width", "100%")
+      .attr("height", "100%")
       .attr("viewBox", [0, 0, width, height]);
 
     // Create a container group for all elements
@@ -387,11 +416,11 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
         });
       })
       .catch(console.error);
-  }, [data, snap.selectedFile]);
+  }, [data, snap.selectedFile, dimensions]);
 
   return (
-    <div className="graph-view-container">
-      <svg ref={svgRef}></svg>
+    <div ref={containerRef} className="graph-view-container">
+      <svg ref={svgRef} style={{ width: "100%", height: "100%" }}></svg>
 
       {selectedNode && (
         <div className="node-details">
@@ -437,7 +466,7 @@ export const GraphView: React.FC<GraphViewProps> = ({ data }) => {
               <div className="list-header">
                 <span>IMPORTED BY</span>
                 <span className="count-badge imported-by-badge">
-                  {selectedNode.imports?.length}
+                  {selectedNode.importedBy.length}
                 </span>
               </div>
               <div className="list-content">
