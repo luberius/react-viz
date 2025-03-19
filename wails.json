@@ -16,5 +16,10 @@
     "productVersion": "0.1.0",
     "copyright": "Copyright © 2025",
     "comments": "Visualize React project component structure"
+  },
+  "mac": {
+    "sign": {
+      "applicationIdentity": "Syahril Andika Pratama"
+    }
   }
 }
